@@ -3,14 +3,14 @@ pragma solidity ^0.8.13;
 
 import {IPuzzle} from "../../interfaces/IPuzzle.sol";
 
+/// @title TinySig
+/// @author Riley Holterhus
 contract TinySig is IPuzzle {
     // This is the address you get by using the private key 0x1.
     // For this challenge, make sure you do not use *your own* private key
     // (other than to initiate the `solve` transaction of course). You only
     // need to use the private key 0x1 for signing things.
     address constant SIGNER = 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf;
-
-    // Private key: 0000000000000000000000000000000000000000000000000000000000000001
 
     /// @inheritdoc IPuzzle
     function name() external pure returns (string memory) {
@@ -23,19 +23,11 @@ contract TinySig is IPuzzle {
     }
 
     /// @inheritdoc IPuzzle
-    /// @param _start The starting value for the puzzle (provided by `generate`). the value solver can't manipulate
-    /// @param _solution The solution to the puzzle (provided by the solver)
     function verify(uint256 _start, uint256 _solution) external returns (bool) {
-        // @note solver can provide arbitrary code to be deployed within *uint256 range*
         address target = address(new Deployer(abi.encodePacked(_solution)));
         (, bytes memory ret) = target.staticcall("");
         (bytes32 h, uint8 v, bytes32 r) = abi.decode(ret, (bytes32, uint8, bytes32));
-        // @audit Find h, v, r such that ecrecover(hash, v, r, s) == signer and s is the specified value.
-        bool rValueOk = r < bytes32(uint256(1 << 184)); // @note actually r is required to be very small
-        bool sigOk = ecrecover(h, v, r, bytes32(_start)) == SIGNER;
-        // console.log("rValueOk: %s", rValueOk);
-        // console.log("sigOk: %s", sigOk);
-        return (rValueOk && sigOk);
+        return (r < bytes32(uint256(1 << 184)) && ecrecover(h, v, r, bytes32(_start)) == SIGNER);
     }
 }
 

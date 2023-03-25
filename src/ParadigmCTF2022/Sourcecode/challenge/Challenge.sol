@@ -2,8 +2,6 @@
 
 pragma solidity 0.8.16;
 
-import "forge-std/Test.sol";
-
 contract Deployer {
     constructor(bytes memory code) {
         assembly {
@@ -12,25 +10,15 @@ contract Deployer {
     }
 }
 
-contract CCC {
-    constructor() {
-        bytes memory code = address(this).code;
-    }
-}
-
 contract Challenge {
     bool public solved = false;
 
-    function safe(bytes memory code) public view returns (bool) {
+    function safe(bytes memory code) private pure returns (bool) {
         uint256 i = 0;
         while (i < code.length) {
             uint8 op = uint8(code[i]);
 
-            console.log("i", i);
-            console.logBytes1(bytes1(op));
-
             if (op >= 0x30 && op <= 0x48) {
-                console.log("INVALID OP");
                 return false;
             }
 
@@ -44,12 +32,10 @@ contract Challenge {
                 op == 0xF5 || // CREATE2
                 op == 0xFA || // STATICCALL
                 op == 0xFF // SELFDESTRUCT
-            ) {
-                console.log("INVALID OP");
-                return false;
-            }
+            ) return false;
 
             if (op >= 0x60 && op < 0x80) i += (op - 0x60) + 1;
+
             i++;
         }
 
@@ -61,7 +47,6 @@ contract Challenge {
         require(safe(code), "deploy/code-unsafe");
         address target = address(new Deployer(code));
         (bool ok, bytes memory result) = target.staticcall("");
-        // @audit condition code == result is required
         require(ok && keccak256(code) == target.codehash && keccak256(result) == target.codehash);
         solved = true;
     }

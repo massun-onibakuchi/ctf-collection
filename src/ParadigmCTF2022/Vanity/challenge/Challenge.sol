@@ -3,7 +3,6 @@
 pragma solidity 0.7.6;
 
 import "./SignatureChecker.sol";
-import "forge-std/Test.sol";
 
 contract Challenge {
     bytes32 private immutable MAGIC = keccak256(abi.encodePacked("CHALLENGE_MAGIC"));
@@ -23,10 +22,7 @@ contract Challenge {
     function solve(address who) private {
         uint256 score = 0;
 
-        for (uint256 i = 0; i < 20; i++) {
-            console.logBytes1(bytes20(who)[i]);
-            if (bytes20(who)[i] == 0) score++;
-        }
+        for (uint256 i = 0; i < 20; i++) if (bytes20(who)[i] == 0) score++;
 
         if (score > bestScore) bestScore = score;
     }
