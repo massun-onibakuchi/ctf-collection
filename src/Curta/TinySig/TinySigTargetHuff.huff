@@ -1,0 +1,13 @@
+// This is hardcoded address of TinySigCallee contract
+// required to be deployed before this contract
+// prefix 000 reduces the size of the contract and runtime gas cost
+#define constant CALLEE = 0x000001e2b9b60b686f073f92d1908521FA2d1290
+
+#define macro MAIN() = takes (0) returns (0) {
+    0x60 0x00 // [0x0, 0x60]
+    dup1 dup1 // [0x00, 0x00, 0x00, 0x60]
+    [CALLEE]
+    gas       // [gas, target, 0x00, 0x00, 0x00, 0x60]
+    staticcall // [sucesss]
+    0x60 0x00 return 
+}
