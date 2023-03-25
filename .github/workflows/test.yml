@@ -1,11 +1,18 @@
 name: test
 
 on:
-  - push
-  - pull_request
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
 
 env:
   FOUNDRY_PROFILE: ci
+  ETH_RPC_URL: ${{secrets.ETH_RPC_URL}}
 
 jobs:
   tests:
@@ -14,6 +21,11 @@ jobs:
     steps:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install Huff
+        uses: huff-language/huff-toolchain@v2
         with:
           version: nightly
 
@@ -27,8 +39,3 @@ jobs:
 
       - name: Run forge tests
         run: forge test -vvv
-
-      - name: Add test summary
-        run: |
-          echo '## Test results' >> $GITHUB_STEP_SUMMARY
-          echo '✅ Passed' >> $GITHUB_STEP_SUMMARY
