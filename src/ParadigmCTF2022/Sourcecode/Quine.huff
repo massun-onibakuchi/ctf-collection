@@ -7,10 +7,11 @@
 // so, part 2 itself must be included in <code>. i.e. bytecode and output would be like this: <code><code>
 // indeed, to push <code> to stack PUSHX is prepended. PUSHX<code><code>
 
+// @note Pseudo code
 // #define macro MAIN() = takes (0) returns (0) {
     // part 1
 
-    0x806001525952606f60005360216000f3 // code
+    // 0x806001525952606f60005360216000f3 // code
 
     // part 2
 
@@ -40,24 +41,33 @@
     ...
 }
 */
-// we need to pad bytecode: code+[pad]
+// workaround
+// 1. padding bytecode: padding+code
+// 2. mstore offset=0x20 instead of 0x00
+// option 2 is maybe simpler.
 #define macro MAIN() = takes (0) returns (0) {
     // part 1
 
-    0x806001525952606f60005360216000f3 
-
-    // pad
+    0x80602352601252607060205360236020f3 // code (17-byte)
 
     // part 2
 
-    dup1 0x01  // [0x01, <code>, <code>]
+    // Considering that the byte code is less than 32 bytes, memory from 0x00 to 0x19 is not used.
+    dup1 0x23         // [0x23, code, code]
     mstore
+    // mem: 0x20 000000code
+    // =>      0x00000000000000000000000000000000000080602352601252607060205360236020f3
 
-    0x21 // [0x21, <code>]
+    0x12              // [0x12, code]
     mstore
+    // mem: 0x20 00codecode
+    // =>      0x0080602352601252607060205360236020f380602352601252607060205360236020f3
 
-    0x7f 0x00 mstore8 // [0x00, PUSHX]
-    // mem: PUSHX<code><code>
+    0x70 0x20 mstore8 // [] (0x70 is PUSH17)
+    // mem: 0x20 70codecode
 
-    0x41 0x00 return
+    // size=0x23=17+17+1=35 in decimal
+    0x23 0x20 return  // []
 }
+// > huffc src/ParadigmCTF2022/Sourcecode/Quine.huff --bytecode
+// 60238060093d393df37080602352601252607060205360236020f380602352601252607060205360236020f3
