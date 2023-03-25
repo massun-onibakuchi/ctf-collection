@@ -1,0 +1,13 @@
+[profile.default]
+src = 'src'
+out = 'out'
+libs = ['lib']
+
+remappings = [
+    'forge-std=lib/forge-std/src/',
+    "@openzeppelin/=lib/openzeppelin-contracts/",
+]
+
+[rpc_endpoints]
+paradigm = "${PARADIGM_RPC_URL}"
+mainnet = "${ETH_RPC_URL}"
