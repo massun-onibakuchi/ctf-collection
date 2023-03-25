@@ -1,6 +1,14 @@
-name: build
+name: build rust
 
-on: [push]
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.rs'
+  pull_request:
+    branches: [main]
+    paths:
+      - '**.rs'
 
 jobs:
   build:
