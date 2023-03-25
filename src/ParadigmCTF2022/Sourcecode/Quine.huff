@@ -1,0 +1,63 @@
+// Quine: this.code == this.staticcall().returndata
+// we can't get code with something like CODECOPY and STATICCALL because it is restricted.
+// maybe all we can do is to hardcode the code in bytecode and output itself when called.
+// structure of the code would be like this:
+//  1. push a hardcoded code <code> to stack
+//  2. copy the code <code> to memory and return code itself
+// so, part 2 itself must be included in <code>. i.e. bytecode and output would be like this: <code><code>
+// indeed, to push <code> to stack PUSHX is prepended. PUSHX<code><code>
+
+// #define macro MAIN() = takes (0) returns (0) {
+    // part 1
+
+    0x806001525952606f60005360216000f3 // code
+
+    // part 2
+
+    // [0x01, <code>, <code>]
+    // store range=[1,1+code_size] value=<code>
+    // mem: 00code
+
+    // [code_size+1, <code>]
+    // store range=[codesize+1,codesize+1+code_size] value=<code>
+    // mem: 00codecode
+
+    // PUSHX_OP 0x00 mstore8 // [0x00, PUSHX]
+    // mem: PUSHX<code><code>
+
+    // return range[0, codesize+1+code_size]
+// }
+
+// NOTE: mstore writes "32-byte" word.
+/*
+#define macro MAIN() = takes (0) returns (0) {
+    0x806001525952606f60005360216000f3
+
+    // actually this results in: mstore offset=0x01 value=0x0000...000000<code>
+    // mem: 0000...00<code> because mstore writes 32-byte word.
+    dup1 0x01    // [0x01, <code>, <code>]
+    mstore
+    ...
+}
+*/
+// we need to pad bytecode: code+[pad]
+#define macro MAIN() = takes (0) returns (0) {
+    // part 1
+
+    0x806001525952606f60005360216000f3 
+
+    // pad
+
+    // part 2
+
+    dup1 0x01  // [0x01, <code>, <code>]
+    mstore
+
+    0x21 // [0x21, <code>]
+    mstore
+
+    0x7f 0x00 mstore8 // [0x00, PUSHX]
+    // mem: PUSHX<code><code>
+
+    0x41 0x00 return
+}
