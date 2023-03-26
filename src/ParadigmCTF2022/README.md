@@ -19,3 +19,35 @@ I find 2 ways to solve this challenge.
    The bytecode would be something like this: `0x7f80607f60005360015260215260416000f300000000000000000000000000000080607f60005360015260215260416000f3000000000000000000000000000000`
 2. `karma.eth` approach / memory offset approach
    The bytecode would be something like this: `60238060093d393df37080602352601252607060205360236020f380602352601252607060205360236020f3s`
+
+```
+#define macro MAIN() = takes (0) returns (0) {
+    // part 1
+
+    0x80602352601252607060205360236020f3 // code (17-byte)
+
+    // part 2
+
+    // Considering that the byte code is less than 32 bytes, memory from 0x00 to 0x19 is not used.
+    dup1 0x23         // [0x23, code, code]
+    mstore
+    // mem: 0x20 000000code
+    // =>      0x00000000000000000000000000000000000080602352601252607060205360236020f3
+
+    0x12              // [0x12, code]
+    mstore
+    // mem: 0x20 00codecode
+    // =>      0x0080602352601252607060205360236020f380602352601252607060205360236020f3
+
+    0x70 0x20 mstore8 // [] (0x70 is PUSH17)
+    // mem: 0x20 70codecode
+
+    // size=0x23=17+17+1=35 in decimal
+    0x23 0x20 return  // []
+}
+```
+
+```bash
+huffc src/ParadigmCTF2022/Sourcecode/Quine.huff --bytecode
+60238060093d393df37080602352601252607060205360236020f380602352601252607060205360236020f3
+```

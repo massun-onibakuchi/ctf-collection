@@ -24,23 +24,5 @@ contract TestVanity is Test {
         console.log("hash compare :>>");
         console.logBytes32(_hash);
         console.logBytes32(abi.decode(result, (bytes32)));
-
-        // chal.solve(address(0x04), "");
-        // while (true) {
-        //     try chal.solve(address(0x04), "") {
-        //         break;
-        //     } catch Error(string memory reason) {
-        //         console.log(reason);
-        //     }
-        // }
-        // uint256 rnd = block.timestamp;
-        // while (true) {
-        //     rnd *= 2;
-        //     bytes memory signature = abi.encodePacked(rnd);
-
-        //     (bool success, bytes memory result) = signer.staticcall(
-        //         abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature)
-        //     );
-        // }
     }
 }
