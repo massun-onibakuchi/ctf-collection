@@ -57,3 +57,61 @@ function verify(uint256 _start, uint256 _solution) external returns (bool) {
 ```
 
 I used Huff to minimize the bytecode of the first one.
+
+## WhatAreBuckets
+
+### Solution
+
+- [Writeup by author](https://hackmd.io/@xNSnimr_Rk68TArjAjMQvw/HkypUNJW2)
+- [Writeup by karmacoma.eth](https://karmacoma.notion.site/Curta-CTF-4-WhatAreBuckets-d936460e0bf143bf8bc3eeb0b6136757)
+
+The thing to notice is that:
+
+- We can think of `commands` as a list of 3-bit values instead of `uint256`
+- `work` function mutates `state` based on 3-bit values in `commands`
+- If 3-bit value is 5 or 7, the function doesn't change `state`
+
+```solidity
+function workAll(uint256 state, uint256 commands)
+  public
+  pure
+  returns (uint256)
+{
+  for (uint256 i = 0; i < 85; i++) {
+    // @note extracts the i^th group of 3-bits in commands
+    state = work(state, uint8(commands >> (i * 3)) & 7);
+  }
+  retursn state;
+}
+```
+
+### Lesson
+
+The goal is to have this return `true`:
+
+```solidity
+function verify(uint256 _start, uint256 _solution)
+  external
+  view
+  returns (bool)
+{
+  uint256 v = workAll(
+    _start,
+    _solution ^ uint256(keccak256(abi.encodePacked(_start)))
+  );
+  // the lowest 16 bits must be the bit pattern 0000000000000001
+  return v & 0xffff == 1;
+}
+
+```
+
+- Breaking down the problem: Find out `k` that satisfies `workAll(_start, k) & 0xffff == 1`. if `k` is found out, `_solution` is computed easily.
+
+- The `work` function looks complex. We can try the following approaches:
+
+  1. Treat it as a black box.
+     - Brute force
+     - Symbolic execution (I tried symbolic execution with Halmos. Indeed it didn't work.)
+     - Other tools
+  2. Play around with it. We'd find some patterns in the `work` function. For example, if `op` is 5 or 7, the function doesn't do anything. We can guess these value would be useful to stay the `state` unchanged.
+  3. In Curta, all submissions are public. We might get some hints from other submissions.
