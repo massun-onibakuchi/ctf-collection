@@ -8,9 +8,18 @@ compute a contract address that starts with a specific prefix.
 
 ## TinySig
 
+```bash
+python secp256k1.py
+```
+
+```bash
+forge test --match-contract=TestTinySig --match-test=testExploit -vvv
+```
+
 ### Solution
 
-[Great solution](https://twitter.com/rileyholterhus/status/1637905710095933441?s=20) by author
+- [Hint](https://twitter.com/0xkarmacoma/status/1637516925617192960?s=20)
+- [Great solution](https://twitter.com/rileyholterhus/status/1637905710095933441?s=20) by author
 
 In summary $k = 1/2 (mod n)$ will make the `r` value equal the x-coordinate of `G/2`, which has an impossibly large number of zeros. And then we can compute the `z` and `r`. `z` and `r` are computed:
 
@@ -60,6 +69,14 @@ I used Huff to minimize the bytecode of the first one.
 
 ## WhatAreBuckets
 
+```bash
+python3 what_are_buckets.py
+```
+
+```bash
+forge test --match-contract=TestWhatAreBuckets --match-test=testExploit -vvv
+```
+
 ### Solution
 
 - [Writeup by author](https://hackmd.io/@xNSnimr_Rk68TArjAjMQvw/HkypUNJW2)
@@ -83,6 +100,7 @@ function workAll(uint256 state, uint256 commands)
   }
   retursn state;
 }
+
 ```
 
 ### Lesson

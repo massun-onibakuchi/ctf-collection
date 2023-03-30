@@ -39,23 +39,8 @@ contract TestTinySig is Test {
     }
 }
 
-/*
-I use this code to generate v, r, hash
-```python secp256k1.py
-s = 0x4e12e14f842803868e861e7c44865edf2aa30674c8e7be2a94d32f5dc4ef247b
-e = 0x0000000000000000000000000000000000000000000000000000000000000001
-k = (curve.n - 1) // 2
-
-r = scalar_mult(k, curve.g)[0]
-v = (r * inverse_mod(s, curve.n)) % curve.n
-z = (k * s % curve.n - r * e % curve.n) % curve.n
-if r < (2 << 184):
-    print("k found:r ", hex(r), "k", hex(k))
-    print("v found:v ", hex(v), "z", hex(z))
-else:
-    print("k not found", hex(r), "k", hex(k))
-```
-*/
+// I use this code to generate v, r, hash
+// python secp256k1.py
 contract TinySigCalleeSol {
     fallback(bytes calldata) external payable returns (bytes memory) {
         // (hash, v, r)

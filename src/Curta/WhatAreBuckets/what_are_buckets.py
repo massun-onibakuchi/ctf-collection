@@ -1,3 +1,4 @@
+import sys
 from collections import deque
 from hashlib import sha3_256
 from typing import List
@@ -91,4 +92,4 @@ if __name__ == '__main__':
             print('😭 No path found')
             return None
 
-    search_bfs(321454080)
+    search_bfs(int(sys.argv[1], 16))
